@@ -19,7 +19,7 @@ const App = () => {
       const updatedData = [...data];
       updatedData[editIndex] = newRecord;
       setData(updatedData);
-      setEditIndex(null); // Clear the edit index after update
+      setEditIndex(null);
     } else {
       setData([...data, newRecord]);
     }
@@ -38,7 +38,6 @@ const App = () => {
       if (result.isConfirmed) {
         setData(data.filter((_, i) => i !== index));
 
-        // Adjust the current page if necessary
         if (data.length <= (currentPage - 1) * 5 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }

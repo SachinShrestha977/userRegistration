@@ -28,7 +28,7 @@ const schema = yup.object().shape({
 
 const Form = ({ onAdd, data, editIndex }) => {
   const [countries, setCountries] = useState([]);
-  const [imagePreview, setImagePreview] = useState(""); // State for image preview
+  const [imagePreview, setImagePreview] = useState("");
 
   const {
     register,
@@ -39,12 +39,12 @@ const Form = ({ onAdd, data, editIndex }) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      country: "Nepal", // Set default country to "Nepal"
+      country: "Nepal",
     },
   });
 
   useEffect(() => {
-    // Fetch countries from API
+    // Fetching countries from API given in task
     axios.get("https://restcountries.com/v3.1/all").then((response) => {
       const sortedCountries = response.data
         .map((country) => country.name.common)
@@ -52,17 +52,16 @@ const Form = ({ onAdd, data, editIndex }) => {
       setCountries(sortedCountries);
     });
 
-    // Populate form with data if editing
     if (editIndex !== null) {
       Object.keys(data).forEach((key) => {
         setValue(key, data[key]);
         if (key === "profilePicture" && data[key]) {
-          setImagePreview(data[key]); // Set the image preview if editing
+          setImagePreview(data[key]);
         }
       });
     } else {
-      reset(); // Reset form if not editing
-      setImagePreview(""); // Clear image preview if not editing
+      reset();
+      setImagePreview("");
     }
   }, [data, editIndex, reset, setValue]);
 
@@ -70,10 +69,9 @@ const Form = ({ onAdd, data, editIndex }) => {
     onAdd(formData);
     toast.success("Form submitted successfully!");
     reset();
-    setImagePreview(""); // Clear image preview after submission
+    setImagePreview("");
   };
 
-  // Function to handle file input change and set image preview
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {

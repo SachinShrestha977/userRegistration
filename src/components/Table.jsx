@@ -5,18 +5,15 @@ const Table = ({ data, onDelete, onEdit, currentPage, setCurrentPage }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 5;
 
-  // Function to handle search input change
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
-  // Filter data based on search query
   const filteredData = data.filter((record) =>
     record.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Paginate the filtered data
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
