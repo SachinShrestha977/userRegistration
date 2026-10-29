@@ -26,8 +26,20 @@ const schema = yup.object().shape({
     }),
 });
 
+const FALLBACK_COUNTRIES = [
+  "Bangladesh",
+  "Bhutan",
+  "China",
+  "India",
+  "Nepal",
+  "Pakistan",
+  "Sri Lanka",
+  "United Kingdom",
+  "United States",
+];
+
 const Form = ({ onAdd, data, editIndex }) => {
-  const [countries, setCountries] = useState([]);
+  const [countries, setCountries] = useState(FALLBACK_COUNTRIES);
   const [imagePreview, setImagePreview] = useState("");
 
   const {
@@ -36,6 +48,7 @@ const Form = ({ onAdd, data, editIndex }) => {
     formState: { errors },
     reset,
     setValue,
+    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -44,14 +57,25 @@ const Form = ({ onAdd, data, editIndex }) => {
   });
 
   useEffect(() => {
-    // Fetching countries from API given in task
-    axios.get("https://restcountries.com/v3.1/all").then((response) => {
-      const sortedCountries = response.data
-        .map((country) => country.name.common)
-        .sort();
-      setCountries(sortedCountries);
-    });
+    // Fetch countries from the API given in the task. The v3.1 "all" endpoint
+    // needs a "fields" filter, and if the request fails we keep the fallback list.
+    axios
+      .get("https://restcountries.com/v3.1/all?fields=name")
+      .then((response) => {
+        const sortedCountries = response.data
+          .map((country) => country.name.common)
+          .sort((a, b) => a.localeCompare(b));
+        if (sortedCountries.length > 0) {
+          setCountries(sortedCountries);
+          setValue("country", getValues("country") || "Nepal");
+        }
+      })
+      .catch(() => {
+        toast.warn("Couldn't load the full country list. Showing a short list.");
+      });
+  }, [setValue, getValues]);
 
+  useEffect(() => {
     if (editIndex !== null) {
       Object.keys(data).forEach((key) => {
         setValue(key, data[key]);
@@ -194,8 +218,8 @@ const Form = ({ onAdd, data, editIndex }) => {
           defaultValue="Nepal"
           className="mt-1 block w-full p-2 border rounded-md"
         >
-          {countries.map((country, index) => (
-            <option key={index} value={country}>
+          {countries.map((country) => (
+            <option key={country} value={country}>
               {country}
             </option>
           ))}
